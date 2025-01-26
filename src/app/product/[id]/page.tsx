@@ -32,11 +32,20 @@ export default async function PostPage({
 }: {
   params: { id: string };
 }) {
-  const post = await client.fetch<Post>(POST_QUERY, { id: params.id }, options);
+  let post: Post | null = null; // Initialize `post` variable
+  let postImageUrl: string = "/fallback-image.png"; // Initialize `postImageUrl` variable
 
-  const postImageUrl = post.image
-    ? urlFor(post.image)?.width(500).height(205).url()
-    : "/fallback-image.png";
+  try {
+    post = await client.fetch<Post>(POST_QUERY, { id: params.id }, options);
+
+    if (post?.image) {
+      postImageUrl = urlFor(post.image)?.width(500).height(205).url() || "/fallback-image.png";
+    }
+  } catch (error) {
+    console.error("Error loading product:", error);
+  } finally {
+    console.log("Fetch attempt completed.");
+  }
 
   return (
     <div>
@@ -44,7 +53,7 @@ export default async function PostPage({
         <div className="container px-5 py-24 mx-auto">
           <div className="lg:w-4/5 mx-auto flex flex-wrap">
             <img
-              alt={post?.name}
+              alt={post?.name || "Product image"}
               className="lg:w-1/2 w-full lg:h-auto h-auto object-contain rounded"
               src={postImageUrl}
             />
@@ -83,22 +92,21 @@ export default async function PostPage({
                 </span>
               </div>
               <p className="leading-relaxed">
-                Seating Capacity: {post?.seating_capacity}
+                Seating Capacity: {post?.seating_capacity || "N/A"}
                 <br />
-                Transmission: {post?.transmission}
+                Transmission: {post?.transmission || "N/A"}
                 <br />
-                Type: {post?.type}
+                Type: {post?.type || "N/A"}
                 <br />
-                Fuel Capacity: {post?.fuel_capacity}
+                Fuel Capacity: {post?.fuel_capacity || "N/A"}
                 <br />
-                Tags: {post?.tags?.join(", ")}
+                Tags: {post?.tags?.join(", ") || "None"}
               </p>
               <div className="flex">
                 <span className="title-font text-xl font-bold text-gray-900">
-                  PRICE/Day: {post?.currency}
-                  {post?.pricePerDay} 
+                  PRICE/Day: {post?.currency || "$"} {post?.pricePerDay || "0.00"}
                 </span>
-                <ProductDetails post={post} />
+                {post && <ProductDetails post={post} />}
               </div>
             </div>
           </div>
