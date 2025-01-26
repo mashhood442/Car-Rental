@@ -17,16 +17,6 @@ type Post = {
   currency?: string;
 };
 
-// Function to generate static params (similar to getStaticPaths)
-export async function generateStaticParams() {
-  // Fetch all car IDs from Sanity
-  const posts: { _id: string }[] = await client.fetch(`*[_type == "car"]{ _id }`);
-
-  return posts.map((post) => ({
-    id: post._id, // Must match the dynamic segment [id]
-  }));
-}
-
 const POST_QUERY = `*[_type == "car" && _id == $id][0]`;
 
 const { projectId, dataset } = client.config();
@@ -37,27 +27,22 @@ const urlFor = (source: SanityImageSource) =>
 
 const options = { next: { revalidate: 30 } };
 
-// Dynamic route for individual products
 export default async function PostPage({
   params,
 }: {
-  params: { id: string }; // Matches the dynamic segment [id]
+  params: Promise<{ id: string }>; // Mark params as a Promise
 }) {
-  let post: Post | null = null; // Initialize `post` variable
-  let postImageUrl: string = "/fallback-image.png"; // Initialize `postImageUrl` variable
+  const { id } = await params; // Await the resolution of params
+  const post: Post | null = await client.fetch<Post>(POST_QUERY, { id }, options);
 
-  try {
-    post = await client.fetch<Post>(POST_QUERY, { id: params.id }, options);
-
-    if (post?.image) {
-      postImageUrl = urlFor(post.image)?.width(500).height(205).url() || "/fallback-image.png";
-    }
-  } catch (error) {
-    console.error("Error loading product:", error);
-  } finally {
-    console.log("Fetch attempt completed.");
+  if (!post) {
+    return <p>Post not found</p>;
   }
 
+  const postImageUrl = post.image
+    ? urlFor(post.image)?.width(500).height(205).url() || "/fallback-image.png"
+    : "/fallback-image.png";
+    
   return (
     <div>
       <section className="text-gray-600 body-font overflow-hidden">
