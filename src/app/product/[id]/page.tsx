@@ -17,6 +17,16 @@ type Post = {
   currency?: string;
 };
 
+// Function to generate static params (similar to getStaticPaths)
+export async function generateStaticParams() {
+  // Fetch all car IDs from Sanity
+  const posts: { _id: string }[] = await client.fetch(`*[_type == "car"]{ _id }`);
+
+  return posts.map((post) => ({
+    id: post._id, // Must match the dynamic segment [id]
+  }));
+}
+
 const POST_QUERY = `*[_type == "car" && _id == $id][0]`;
 
 const { projectId, dataset } = client.config();
@@ -27,10 +37,11 @@ const urlFor = (source: SanityImageSource) =>
 
 const options = { next: { revalidate: 30 } };
 
+// Dynamic route for individual products
 export default async function PostPage({
   params,
 }: {
-  params: { id: string };
+  params: { id: string }; // Matches the dynamic segment [id]
 }) {
   let post: Post | null = null; // Initialize `post` variable
   let postImageUrl: string = "/fallback-image.png"; // Initialize `postImageUrl` variable
@@ -60,37 +71,6 @@ export default async function PostPage({
             <div className="lg:w-1/2 w-full lg:pl-10 lg:py-6 mt-6 lg:mt-0">
               <h2 className="text-sm title-font text-gray-500 tracking-widest">MORENT</h2>
               <h1 className="text-gray-900 text-3xl font-bold title-font mb-1">{post?.name}</h1>
-              <div className="flex mb-4">
-                <span className="flex items-center">
-                  {/* Star Icons */}
-                  {[...Array(4)].map((_, index) => (
-                    <svg
-                      key={index}
-                      fill="currentColor"
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      className="w-4 h-4 text-indigo-500"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                  ))}
-                  <svg
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    className="w-4 h-4 text-indigo-500"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  <span className="text-gray-600 ml-3">4 Reviews</span>
-                </span>
-              </div>
               <p className="leading-relaxed">
                 Seating Capacity: {post?.seating_capacity || "N/A"}
                 <br />
