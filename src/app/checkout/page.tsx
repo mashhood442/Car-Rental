@@ -98,7 +98,7 @@ const CheckoutPage: React.FC = () => {
                 <div>
                   <h3 className="font-medium text-black">{item.name}</h3>
                   <p className="text-sm text-black">Quantity: {item.quantity}</p>
-                  <p className="text-sm text-black">Price/Day: {item.price} RS</p>
+                  <p className="text-sm text-black">Price/Day: {item.pricePerDay} RS</p>
                 </div>
               </div>
             ))}
