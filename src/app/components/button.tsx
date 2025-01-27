@@ -6,7 +6,7 @@ type ProductDetailsProps = {
   post: {
     _id: string;
     name: string;
-    pricePerDay: number;
+    pricePerDay: string;
     quantity: number;
     
   };

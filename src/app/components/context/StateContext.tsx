@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 interface Product {
   id: string;
   name: string;
-  pricePerDay: number;
+  pricePerDay: string;
   quantity: number;
   [key: string]: any;
 }
@@ -72,9 +72,9 @@ export const StateContext: React.FC<StateProps> = ({ children }) => {
 
   // Update subtotal and total quantities
   const updateSubTotal = (myCart: Product[]) => {
-    const subtotal = myCart.reduce((sum, item) => sum + item.quantity * item.pricePerDay, 0);
+    
     const totalQty = myCart.reduce((sum, item) => sum + item.quantity, 0);
-    setSubTotal(subtotal);
+    
     setTotalQuantities(totalQty);
   };
 

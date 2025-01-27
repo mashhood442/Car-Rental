@@ -17,6 +17,7 @@ type Post = {
   pricePerDay: string;
   originalPrice: string;
   tags: string[];
+  quantity: number;
 };
 
 
