@@ -1,14 +1,23 @@
 "use client";
 import React from "react";
+import {toast, Toaster } from "react-hot-toast";
+import { StateContext, useStateContext } from "../components/context/StateContext";
+
+
+
 
 const CheckoutPage: React.FC = () => {
+
+  const handleRentNow = () => {
+    toast.success("Order placed successfully")
+    console.log(toast.success)
+  }
     
-  
+  const {CartItem} = useStateContext()
   return (
-    
-      
 
       <main className="flex-1 flex flex-col items-center p-4">
+        <Toaster />
         <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-6">
           
           <div className="md:col-span-2 space-y-6">
@@ -71,37 +80,36 @@ const CheckoutPage: React.FC = () => {
                   <span>I agree with the terms and conditions and privacy policy.</span>
                 </label>
               </div>
-              <button className="w-full bg-blue-600 text-white rounded-lg py-2 px-4 hover:bg-blue-700 mt-4">
+              <button
+              onClick={() =>handleRentNow()}
+              className="w-full bg-blue-600 text-white rounded-lg py-2 px-4 hover:bg-blue-700 mt-4">
                 Rent Now
               </button>
             </div>
           </div>
 
           {/* Right Section */}
+
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold mb-4">Rental Summary</h2>
+            <h2 className="text-lg font-semibold mb-4 text-black">Rental Summary</h2>
             <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <img src="/car-placeholder.png" alt="Car" className="w-16 h-16 rounded-lg object-cover" />
+            {CartItem.map((item, index) => (
+              <div key={index} className="flex items-center space-x-4">
                 <div>
-                  <h3 className="font-medium">Nissan GT - R</h3>
-                  
+                  <h3 className="font-medium text-black">{item.name}</h3>
+                  <p className="text-sm text-black">Quantity: {item.quantity}</p>
+                  <p className="text-sm text-black">Price/Day: {item.price} RS</p>
                 </div>
               </div>
+            ))}
+              
               <div className="space-y-1">
-                <div className="flex justify-between">
-                  <span>Subtotal</span>
-                  <span>$80.00</span>
-                </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between text-black">
                   <span>Tax</span>
                   <span>$0.00</span>
                 </div>
               </div>
-              <div className="mt-4 border-t pt-4 flex justify-between font-semibold">
-                <span>Total Rental Price</span>
-                <span>$80.00</span>
-              </div>
+              
               <div>
                 <input type="text" placeholder="Apply promo code" className="border rounded-lg py-2 px-3 w-full mt-2" />
                 <button className="w-full bg-blue-600 text-white rounded-lg py-2 px-4 hover:bg-blue-700 mt-2">

@@ -6,17 +6,19 @@ import { CiShoppingCart } from "react-icons/ci";
 import { MdCancel } from "react-icons/md";
 import { IoAddCircleOutline } from "react-icons/io5";
 import { GrSubtractCircle } from "react-icons/gr";
-import { useStateContext } from "./context/StateContext"; 
+import { useStateContext } from "./context/StateContext";
 
 const Navbar = () => {
   const {
     CartItem,
     subTotal,
     totalQuantities,
-    incQty,
-    decQty,
     AddToCart,
-  } = useStateContext(); 
+    RemoveFromCart,
+    saveCart,
+    updateSubTotal,
+    deleteFromCart
+  } = useStateContext();
 
   const ref = useRef<HTMLDivElement | null>(null);
 
@@ -83,26 +85,40 @@ const Navbar = () => {
         ) : (
           <ol className="space-y-4">
             {CartItem.map((item, index) => (
-              <li key={index} className="flex justify-between items-center p-3 bg-gray-800 rounded-lg">
+              <li
+                key={index}
+                className="flex justify-between items-center p-3 bg-gray-800 rounded-lg"
+              >
                 <div>
                   <p className="text-sm font-medium">{item.name}</p>
                   <p className="text-xs text-gray-400">Quantity: {item.quantity}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <IoAddCircleOutline
-                    onClick={() => AddToCart(item, 1)}
+                    onClick={() => {
+                      AddToCart(item, 1);
+                      saveCart(); // Save the updated cart
+                    }}
                     className="cursor-pointer text-green-500 w-5 h-5"
                   />
                   <span className="text-gray-200">{item.quantity}</span>
                   <GrSubtractCircle
-                    onClick={() => decQty()}
+                    onClick={() => {
+                      RemoveFromCart(item, 1);
+                      saveCart(); // Save the updated cart
+                    }}
                     className="cursor-pointer text-red-500 w-5 h-5"
                   />
                 </div>
                 <span className="font-semibold text-gray-300">
-  {item.price ? (parseFloat(item.price.replace(/[^0-9.-]+/g, "")) * item.quantity).toFixed(2) : 0} RS
-</span>
-
+                  {item.price
+                    ? (
+                        parseFloat(item.price.replace(/[^0-9.-]+/g, "")) *
+                        item.quantity
+                      ).toFixed(2)
+                    : 0}{" "}
+                  RS
+                </span>
               </li>
             ))}
           </ol>
@@ -110,11 +126,15 @@ const Navbar = () => {
 
         {/* Cart Summary */}
         <div className="flex justify-between items-center mt-6 border-t pt-4">
-          
+          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+          onClick={() => {
+            deleteFromCart();
+            saveCart(); // Save the updated cart
+          }}>
+            Clear Cart
+          </button>
           <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-          <Link href="/checkout">
-            Checkout
-            </Link>
+            <Link href="/checkout">Checkout</Link>
           </button>
         </div>
       </div>

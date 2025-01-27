@@ -1,99 +1,138 @@
-import { createContext,useContext,useState,useEffect,ReactNode } from "react";
-import toast, { Toast, Toaster } from "react-hot-toast";
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import toast from "react-hot-toast";
 
 interface Product {
   id: string;
   name: string;
-  price: string;
-  [key: string]: any; 
+  pricePerDay: number;
+  quantity: number;
+  [key: string]: any;
 }
 
 interface CartContextValues {
   showCart?: boolean;
   CartItem: Product[];
   subTotal: number;
-  qty: number;
   totalQuantities: number;
-  incQty: () => void;
-  decQty: () => void;
+  saveCart: () => void;
   AddToCart: (product: Product, quantity: number) => void;
+  RemoveFromCart: (product: Product, quantity: number) => void;
+  updateSubTotal: (cartItems: Product[]) => void;
+  deleteFromCart: () => void;
 }
 
 interface StateProps {
-    children: ReactNode;
-  }
+  children: ReactNode;
+}
 
 const Context = createContext<CartContextValues | undefined>(undefined);
 
+export const StateContext: React.FC<StateProps> = ({ children }) => {
+  const [showCart, setShowCart] = useState(false);
+  const [CartItem, setCartItem] = useState<Product[]>([]);
+  const [subTotal, setSubTotal] = useState(0);
+  const [totalQuantities, setTotalQuantities] = useState(0);
 
+  const deleteFromCart = () => {
+    setCartItem([])
+    localStorage.removeItem('cart')  
+    
+  }
 
-export const StateContext: React.FC<StateProps> = ({children}) => {
-    const [showCart, setShowCart] = useState();
-    const [CartItem, setCartItem] = useState<Product[]>([]);
-    const [subTotal, setSubTotal] = useState(0);
-    const [qty, setQty] = useState(1);
-    const [totalQuantities, setTotalQuantities] = useState(0);
-
-    const incQty = () => {
-      setQty(qty + 1);
+  // Save the cart to localStorage
+  const saveCart = () => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("cart", JSON.stringify(CartItem));
     }
-    const decQty = () => {
-      if (qty > 1) {
-        setQty(qty - 1);
+  };
+
+  // Load cart from localStorage
+  const loadCart = () => {
+    try {
+      const fromStorage = localStorage.getItem("cart");
+      if (fromStorage) {
+        const parsedCart = JSON.parse(fromStorage) 
+        setCartItem(parsedCart);
+        updateSubTotal(parsedCart);
       }
-      else {
-        toast.error('Cannot decrement quantity below 1');
-      }
+    } catch (error) {
+      console.error("Error loading cart:", error);
+      localStorage.removeItem("cart");
+      setCartItem([]);
+    }
+  };
+
+  useEffect(() => {
+    loadCart();
+  }, []);
+
+  useEffect(() => {
+    saveCart();
+  }, [CartItem]);
+
+  // Update subtotal and total quantities
+  const updateSubTotal = (myCart: Product[]) => {
+    const subtotal = myCart.reduce((sum, item) => sum + item.quantity * item.pricePerDay, 0);
+    const totalQty = myCart.reduce((sum, item) => sum + item.quantity, 0);
+    setSubTotal(subtotal);
+    setTotalQuantities(totalQty);
+  };
+
+  const AddToCart = (product: Product, quantity: number) => {
+    if (quantity <= 0) {
+      toast.error("Quantity must be greater than zero");
+      return;
     }
 
+    const existingProduct = CartItem.find((item) => item.id === product.id);
 
-    const AddToCart = (product: Product, quantity: number) => {
-      const current_Product = CartItem.find((item) => item.id === product.id);
-    
-      if (current_Product) {
-        
-        setSubTotal((current) => current + product.pricePerDay * quantity);
-        setTotalQuantities((current) => current + quantity);
-    
-        const UpdatedCart = CartItem.map((item) => {
-          if (item.id === product.id) {
-            return { ...item, quantity: item.quantity + quantity };
-          }
-          return item;
-        });
-    
-        setCartItem(UpdatedCart);
-      } else {
-        
-        const newProduct = { ...product, quantity };
-        setCartItem([...CartItem, newProduct]);
-        setSubTotal((current) => current + product.pricePerDay * quantity);
-        setTotalQuantities((current) => current + quantity);
-      }
-    
-      
-      toast.success(`${quantity} ${product.name} added successfully`);
-    };
-    
+    if (existingProduct) {
+      const updatedCart = CartItem.map((item) =>
+        item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
+      );
+      setCartItem(updatedCart);
+    } else {
+      setCartItem([...CartItem, { ...product, quantity }]);
+    }
 
- 
-    return (
-      <Context.Provider
+    toast.success(`${quantity} ${product.name} added successfully`);
+    updateSubTotal([...CartItem, { ...product, quantity }]);
+  };
+
+  const RemoveFromCart = (product: Product, quantity: number) => {
+    if (quantity <= 0) {
+      toast.error("Quantity must be greater than zero");
+      return;
+    }
+
+    const updatedCart = CartItem.map((item) =>
+      item.id === product.id ? { ...item, quantity: item.quantity - quantity } : item
+    ).filter((item) => item.quantity > 0);
+
+    setCartItem(updatedCart);
+
+    toast.error(`${quantity} ${product.name} removed successfully`);
+    updateSubTotal(updatedCart);
+  };
+
+  return (
+    <Context.Provider
       value={{
+        deleteFromCart,
+        updateSubTotal,
         showCart,
         CartItem,
         subTotal,
-        qty,
         totalQuantities,
-        incQty,
-        decQty,
+        saveCart,
         AddToCart,
+        RemoveFromCart,
       }}
     >
-            {children}
-        </Context.Provider>
-    )
-}
+      {children}
+    </Context.Provider>
+  );
+};
 
 export const useStateContext = () => {
   const context = useContext(Context);

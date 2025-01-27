@@ -1,6 +1,3 @@
-
-
-
 import Link from "next/link";
 import { client } from "@/sanity/client";
 

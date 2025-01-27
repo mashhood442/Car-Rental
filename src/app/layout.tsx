@@ -1,6 +1,6 @@
 "use client"; 
 
-import { CartProvider } from "./components/context/CartContext"
+
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/nav";
@@ -27,13 +27,13 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <StateContext>      
-          <CartProvider>
+         
           <main className="min-h-screen bg-gray-100">
             <Navbar />
             <div>{children}</div>
             <Footer />
           </main>
-        </CartProvider>
+        
         </StateContext>
   
       </body>

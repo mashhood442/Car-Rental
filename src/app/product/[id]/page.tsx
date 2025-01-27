@@ -5,17 +5,20 @@ import ProductDetails from "@/app/components/button";
 
 // Define the custom type for `post`
 type Post = {
+  
+  image?: SanityImageSource;
   _id: string;
   name: string;
+  brand: string;
+  type: string;
+  fuelCapacity: string;
+  transmission: string;
+  seatingCapacity: string;
   pricePerDay: string;
-  image?: SanityImageSource;
-  seating_capacity?: number;
-  transmission?: string;
-  type?: string;
-  fuel_capacity?: string;
-  tags?: string[];
-  currency?: string;
+  originalPrice: string;
+  tags: string[];
 };
+
 
 const POST_QUERY = `*[_type == "car" && _id == $id][0]`;
 
@@ -42,7 +45,8 @@ export default async function PostPage({
   const postImageUrl = post.image
     ? urlFor(post.image)?.width(500).height(205).url() || "/fallback-image.png"
     : "/fallback-image.png";
-    
+
+
   return (
     <div>
       <section className="text-gray-600 body-font overflow-hidden">
@@ -57,19 +61,19 @@ export default async function PostPage({
               <h2 className="text-sm title-font text-gray-500 tracking-widest">MORENT</h2>
               <h1 className="text-gray-900 text-3xl font-bold title-font mb-1">{post?.name}</h1>
               <p className="leading-relaxed">
-                Seating Capacity: {post?.seating_capacity || "N/A"}
+                Seating Capacity: {post?.seatingCapacity || "N/A"}
                 <br />
                 Transmission: {post?.transmission || "N/A"}
                 <br />
                 Type: {post?.type || "N/A"}
                 <br />
-                Fuel Capacity: {post?.fuel_capacity || "N/A"}
+                Fuel Capacity: {post?.fuelCapacity || "N/A"}
                 <br />
                 Tags: {post?.tags?.join(", ") || "None"}
               </p>
               <div className="flex">
                 <span className="title-font text-xl font-bold text-gray-900">
-                  PRICE/Day: {post?.currency || "$"} {post?.pricePerDay || "0.00"}
+                  PRICE/Day: {post?.originalPrice} {post?.pricePerDay || "0.00"}
                 </span>
                 {post && <ProductDetails post={post} />}
               </div>
