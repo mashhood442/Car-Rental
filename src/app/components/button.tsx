@@ -6,7 +6,8 @@ type ProductDetailsProps = {
   post: {
     _id: string;
     name: string;
-    pricePerDay: string;
+    pricePerDay: number;
+    quantity: number;
     
   };
 };
@@ -19,7 +20,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ post }) => {
     const product = {
       id: post._id,
       name: post.name,
-      price: post.pricePerDay,
+      pricePerDay: post.pricePerDay, 
+      quantity : post.quantity
     };
     console.log("Product to add:", product); 
     AddToCart(product, 1);
