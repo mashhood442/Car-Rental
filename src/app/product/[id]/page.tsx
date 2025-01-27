@@ -14,7 +14,7 @@ type Post = {
   fuelCapacity: string;
   transmission: string;
   seatingCapacity: string;
-  pricePerDay: string;
+  pricePerDay: number;
   originalPrice: string;
   tags: string[];
   quantity: number;

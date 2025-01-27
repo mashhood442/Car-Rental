@@ -111,12 +111,7 @@ const Navbar = () => {
                   />
                 </div>
                 <span className="font-semibold text-gray-300">
-                  {item.price
-                    ? (
-                        parseFloat(item.price.replace(/[^0-9.-]+/g, "")) *
-                        item.quantity
-                      ).toFixed(2)
-                    : 0}{" "}
+                  {item.pricePerDay}
                   RS
                 </span>
               </li>
